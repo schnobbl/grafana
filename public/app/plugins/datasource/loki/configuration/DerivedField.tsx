@@ -37,18 +37,6 @@ export const DerivedField = (props: Props) => {
     });
   };
 
-  const datasources: DataSourceSelectItem[] = getDatasourceSrv()
-    .getExternal()
-    .map(
-      (ds: any) =>
-        ({
-          value: ds.name,
-          name: ds.name,
-          meta: ds.meta,
-        } as DataSourceSelectItem)
-    );
-  const selectedDatasource = value.datasourceName && datasources.find(d => d.name === value.datasourceName);
-
   return (
     <div className={className}>
       <div className={styles.row}>
@@ -121,18 +109,45 @@ export const DerivedField = (props: Props) => {
         />
 
         {hasIntenalLink && (
-          <DataSourcePicker
-            onChange={newValue => {
+          <DataSourceSection
+            onChange={datasourceName => {
               onChange({
                 ...value,
-                datasourceName: newValue.name,
+                datasourceName,
               });
             }}
-            datasources={datasources}
-            current={selectedDatasource}
+            datasourceName={value.datasourceName}
           />
         )}
       </div>
     </div>
+  );
+};
+
+type DataSourceSectionProps = {
+  datasourceName?: string;
+  onChange: (name: string) => void;
+};
+const DataSourceSection = (props: DataSourceSectionProps) => {
+  const { datasourceName, onChange } = props;
+  const datasources: DataSourceSelectItem[] = getDatasourceSrv()
+    .getExternal()
+    .map(
+      (ds: any) =>
+        ({
+          value: ds.name,
+          name: ds.name,
+          meta: ds.meta,
+        } as DataSourceSelectItem)
+    );
+  const selectedDatasource = datasourceName && datasources.find(d => d.name === datasourceName);
+  return (
+    <DataSourcePicker
+      onChange={newValue => {
+        onChange(newValue.name);
+      }}
+      datasources={datasources}
+      current={selectedDatasource}
+    />
   );
 };
